@@ -1,0 +1,59 @@
+package com.laljisingh.instagram.controller;
+
+import com.laljisingh.instagram.model.User;
+import com.laljisingh.instagram.service.UserService;
+import jakarta.annotation.Nullable;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+public class UserController {
+
+    @Autowired
+    UserService service;
+
+    @PostMapping(value = "/user")
+    public ResponseEntity<String> saveUser(@RequestBody String userData) {
+
+        User user = setUser(userData);
+
+        int userId = service.saveUser(user);
+        return new ResponseEntity<String>("user saved with id- " +userId, HttpStatus.CREATED);
+    }
+
+
+    @GetMapping(value = "/user")
+    public ResponseEntity<String> getUser(@Nullable @RequestParam String userId){
+        JSONArray res =  service.getUser(userId);
+        return new ResponseEntity<String>(res.toString(), HttpStatus.OK);
+    }
+
+    @PutMapping(value = "/user/{userId}")
+    public ResponseEntity<String> updateUser(@PathVariable String userId, @RequestBody String newUser){
+
+        User user = setUser(newUser);
+        service.updateUser(user, userId);
+        return new ResponseEntity<String>("okkk", HttpStatus.OK);
+    }
+
+
+
+    private User setUser(String userData) {
+
+        JSONObject jsonObject = new JSONObject(userData);
+        User user = new User();
+
+        user.setAge(jsonObject.getInt("age"));
+        user.setEmail(jsonObject.getString("email"));
+        user.setFirstName(jsonObject.getString("firstName"));
+        user.setLastName(jsonObject.getString("lastName"));
+        user.setPhoneNumber(jsonObject.getString("number"));
+
+        return user;
+
+    }
+}
